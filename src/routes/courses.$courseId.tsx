@@ -1,33 +1,43 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, FileText, Send, Sparkles, Check, X, Wand2, RotateCcw } from "lucide-react";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { ArrowLeft, FileText, Send, Sparkles, Check, X, Wand as Wand2, RotateCcw } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
-import { courses, courseFiles, courseQuizzes, mockChatReply } from "@/lib/mock-data";
+import { useCourses } from "@/lib/courses-store";
+import { mockChatReply } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/courses/$courseId")({
-  loader: ({ params }) => {
-    const course = courses.find((c) => c.id === params.courseId);
-    if (!course) throw notFound();
-    return { course };
-  },
-  head: ({ loaderData }) => ({
+  head: () => ({
     meta: [
-      { title: `${loaderData?.course.code} — Study Corner` },
-      { name: "description", content: loaderData?.course.description ?? "" },
+      { title: "Course — Study Corner" },
+      { name: "description", content: "Course hub, materials, quizzes, and AI tutor." },
     ],
   }),
-  notFoundComponent: () => (
-    <div className="p-12 text-center text-muted-foreground">Course not found.</div>
-  ),
   component: CourseHub,
 });
 
 type Tab = "materials" | "quiz";
 
 function CourseHub() {
-  const { course } = Route.useLoaderData();
+  const { courseId } = useParams({ from: "/courses/$courseId" });
+  const { courses, files: courseFiles, quizzes: courseQuizzes } = useCourses();
+  const course = courses.find((c) => c.id === courseId);
   const [tab, setTab] = useState<Tab>("materials");
+
+  if (!course) {
+    return (
+      <div className="mx-auto max-w-7xl px-6 md:px-12 py-10 md:py-14">
+        <Link
+          to="/courses"
+          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-8"
+        >
+          <ArrowLeft className="h-3 w-3" /> Courses
+        </Link>
+        <div className="p-12 text-center text-muted-foreground">Course not found.</div>
+      </div>
+    );
+  }
+
   const files = courseFiles[course.id] ?? [];
 
   return (
@@ -112,7 +122,7 @@ function CourseHub() {
             </div>
           )}
 
-          {tab === "quiz" && <Quiz courseId={course.id} hue={course.hue} />}
+          {tab === "quiz" && <Quiz courseId={course.id} hue={course.hue} courseQuizzes={courseQuizzes} />}
         </div>
 
         <Chat courseTitle={course.title} hue={course.hue} />
@@ -187,7 +197,7 @@ Keep the tone clear, rigorous, and encouraging.`;
   );
 }
 
-function Quiz({ courseId, hue }: { courseId: string; hue: number }) {
+function Quiz({ courseId, hue, courseQuizzes }: { courseId: string; hue: number; courseQuizzes: Record<string, { question: string; options: string[]; answerIndex: number }[]> }) {
   const questions = courseQuizzes[courseId] ?? [];
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);

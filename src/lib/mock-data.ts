@@ -133,11 +133,24 @@ export function mockChatReply(courseTitle: string, prompt: string): string {
   const trimmed = prompt.trim();
   if (!trimmed) return "Could you share a specific question about the material?";
   const lower = trimmed.toLowerCase();
-  if (lower.includes("summarize") || lower.includes("summary")) {
-    return `Here's a quick summary for ${courseTitle}: the recent lectures focused on core foundations — definitions first, then a few worked examples. Want me to expand on a specific section?`;
+
+  if (/^(hi|hello|hey|yo)\b/.test(lower)) {
+    return `Hey! Ready to dig into ${courseTitle}? Ask me about a concept, a reading, or a problem you're stuck on.`;
+  }
+  if (lower.includes("summarize") || lower.includes("summary") || lower.includes("tl;dr")) {
+    return `Here's the gist for ${courseTitle}: the recent material builds from core definitions → worked examples → an open question you should be able to answer in 2–3 sentences. Want me to expand any section?`;
+  }
+  if (lower.includes("explain") || lower.includes("what is") || lower.includes("what's")) {
+    return `Good prompt. In ${courseTitle}, think of it this way: start from the definition, then trace one concrete example end-to-end. The intuition usually clicks once you see why the edge cases behave the way they do. Want me to walk a worked example?`;
+  }
+  if (lower.includes("quiz") || lower.includes("test") || lower.includes("practice")) {
+    return `Sure — try this: pick one concept from the latest lecture, write its definition from memory, then construct a counter-example. If you can do both in under 3 minutes, you're solid. Want me to generate 5 practice questions?`;
+  }
+  if (lower.includes("exam") || lower.includes("midterm") || lower.includes("final")) {
+    return `For ${courseTitle} exams, prioritize: (1) definitions you can restate cleanly, (2) two worked problems per topic, (3) one "why does this matter" sentence per concept. That trio covers ~80% of typical questions.`;
   }
   if (lower.endsWith("?")) {
-    return `Great question. In the context of ${courseTitle}, the short answer is that it depends on the assumptions you start from. Want me to walk through it step by step?`;
+    return `Great question. In the context of ${courseTitle}, the short answer is: it depends on the assumptions you start from. The longer answer involves checking the conditions of the relevant theorem/argument and then applying it carefully. Want me to walk through step by step?`;
   }
-  return `Noted — for ${courseTitle}, I'd suggest reviewing the most recent lecture notes and trying one practice problem before moving on. Ask me anything specific.`;
+  return `Noted. For ${courseTitle}, I'd suggest re-reading the most recent lecture notes, then attempting one practice problem before moving on. Tell me which topic feels shakiest and I'll target it.`;
 }

@@ -108,6 +108,7 @@ function RootComponent() {
         <AppLayout>
           <Outlet />
         </AppLayout>
+        <Toaster position="bottom-right" />
       </ThemeProvider>
     </QueryClientProvider>
   );

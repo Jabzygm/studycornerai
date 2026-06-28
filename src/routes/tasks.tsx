@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil, Check, X } from "lucide-react";
 import { useState } from "react";
 import { useTasks, type TaskCategory } from "@/lib/tasks-store";
 import { cn } from "@/lib/utils";
@@ -15,17 +15,41 @@ export const Route = createFileRoute("/tasks")({
 });
 
 const cats: TaskCategory[] = ["Homework", "Projects", "Finals"];
+type Filter = "all" | "pending" | "completed";
+const filters: Filter[] = ["all", "pending", "completed"];
 
 function TasksPage() {
-  const { tasks, add, toggle, remove } = useTasks();
+  const { tasks, add, toggle, remove, update } = useTasks();
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<TaskCategory>("Homework");
+  const [filter, setFilter] = useState<Filter>("all");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
     add({ title: title.trim(), category });
     setTitle("");
+  };
+
+  const startEdit = (id: string, current: string) => {
+    setEditingId(id);
+    setEditValue(current);
+  };
+  const saveEdit = (id: string) => {
+    const v = editValue.trim();
+    if (v) update(id, { title: v });
+    setEditingId(null);
+  };
+
+  const visible = (cat: TaskCategory) =>
+    tasks.filter((t) => t.category === cat && (filter === "all" || (filter === "pending" ? !t.done : t.done)));
+
+  const counts = {
+    all: tasks.length,
+    pending: tasks.filter((t) => !t.done).length,
+    completed: tasks.filter((t) => t.done).length,
   };
 
   return (
@@ -35,7 +59,7 @@ function TasksPage() {
         <h1 className="font-display text-4xl md:text-5xl font-medium mt-2">Tasks</h1>
       </header>
 
-      <form onSubmit={submit} className="surface-card p-2 flex items-center gap-2 mb-10">
+      <form onSubmit={submit} className="surface-card p-2 flex items-center gap-2 mb-6">
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -57,9 +81,25 @@ function TasksPage() {
         </button>
       </form>
 
+      <div className="flex gap-1 mb-8 border-b border-border">
+        {filters.map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={cn(
+              "relative px-4 py-2.5 text-sm capitalize transition-colors",
+              filter === f ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {f} <span className="text-xs text-muted-foreground ml-1">{counts[f]}</span>
+            {filter === f && <span className="absolute inset-x-3 -bottom-px h-px bg-foreground" />}
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {cats.map((cat) => {
-          const items = tasks.filter((t) => t.category === cat);
+          const items = visible(cat);
           return (
             <div key={cat} className="surface-card p-5">
               <div className="flex items-center justify-between mb-4">
@@ -79,9 +119,7 @@ function TasksPage() {
                       onClick={() => toggle(t.id)}
                       className={cn(
                         "mt-0.5 h-4 w-4 shrink-0 rounded border transition-all flex items-center justify-center",
-                        t.done
-                          ? "bg-primary border-primary"
-                          : "border-border hover:border-foreground/40",
+                        t.done ? "bg-primary border-primary" : "border-border hover:border-foreground/40",
                       )}
                     >
                       {t.done && (
@@ -91,22 +129,53 @@ function TasksPage() {
                       )}
                     </button>
                     <div className="min-w-0 flex-1">
-                      <p className={cn("text-sm transition-colors", t.done && "line-through text-muted-foreground")}>
-                        {t.title}
-                      </p>
+                      {editingId === t.id ? (
+                        <input
+                          autoFocus
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onBlur={() => saveEdit(t.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveEdit(t.id);
+                            if (e.key === "Escape") setEditingId(null);
+                          }}
+                          className="w-full bg-transparent text-sm outline-none border-b border-foreground/30 pb-0.5"
+                        />
+                      ) : (
+                        <p
+                          onDoubleClick={() => startEdit(t.id, t.title)}
+                          className={cn("text-sm transition-colors", t.done && "line-through text-muted-foreground")}
+                        >
+                          {t.title}
+                        </p>
+                      )}
                       {t.course && (
                         <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">
                           {t.course}
                         </p>
                       )}
                     </div>
-                    <button
-                      onClick={() => remove(t.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                      aria-label="Delete task"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {editingId === t.id ? (
+                        <>
+                          <button onClick={() => saveEdit(t.id)} className="text-muted-foreground hover:text-foreground" aria-label="Save">
+                            <Check className="h-3.5 w-3.5" />
+                          </button>
+                          <button onClick={() => setEditingId(null)} className="text-muted-foreground hover:text-foreground" aria-label="Cancel">
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => startEdit(t.id, t.title)} className="text-muted-foreground hover:text-foreground" aria-label="Edit">
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button onClick={() => remove(t.id)} className="text-muted-foreground hover:text-destructive" aria-label="Delete">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>

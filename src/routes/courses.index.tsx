@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { useCourses } from "@/lib/courses-store";
 import { cn } from "@/lib/utils";
@@ -51,77 +51,84 @@ function CoursesPage() {
         </div>
         <button
           onClick={() => setShowForm((s) => !s)}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity"
+          className="btn-primary"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4" strokeWidth={2.5} />
           {showForm ? "Cancel" : "Add course"}
         </button>
       </header>
 
       {showForm && (
-        <form onSubmit={submit} className="surface-card p-5 mb-8 animate-fade-in">
+        <form onSubmit={submit} className="surface-elevated p-6 mb-10 animate-scale-in">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Code</label>
+              <label className="text-xs text-muted-foreground/70 mb-1.5 block font-medium">Code</label>
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="CS 101"
-                className="w-full bg-transparent text-sm outline-none border border-border rounded-lg px-3 py-2 focus:border-foreground/30 transition-colors"
+                className="w-full bg-surface-muted/50 text-sm outline-none border border-border rounded-xl px-3.5 py-2.5 focus:border-foreground/20 focus:bg-surface transition-all duration-300"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Title</label>
+              <label className="text-xs text-muted-foreground/70 mb-1.5 block font-medium">Title</label>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Intro to Computer Science"
-                className="w-full bg-transparent text-sm outline-none border border-border rounded-lg px-3 py-2 focus:border-foreground/30 transition-colors"
+                className="w-full bg-surface-muted/50 text-sm outline-none border border-border rounded-xl px-3.5 py-2.5 focus:border-foreground/20 focus:bg-surface transition-all duration-300"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Instructor</label>
+              <label className="text-xs text-muted-foreground/70 mb-1.5 block font-medium">Instructor</label>
               <input
                 value={instructor}
                 onChange={(e) => setInstructor(e.target.value)}
                 placeholder="Dr. Smith"
-                className="w-full bg-transparent text-sm outline-none border border-border rounded-lg px-3 py-2 focus:border-foreground/30 transition-colors"
+                className="w-full bg-surface-muted/50 text-sm outline-none border border-border rounded-xl px-3.5 py-2.5 focus:border-foreground/20 focus:bg-surface transition-all duration-300"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Accent color</label>
-              <div className="flex items-center gap-3">
+              <label className="text-xs text-muted-foreground/70 mb-1.5 block font-medium">Accent color</label>
+              <div className="flex items-center gap-3 h-[42px] bg-surface-muted/50 rounded-xl px-3 border border-border">
                 <input
                   type="range"
                   min={0}
                   max={360}
                   value={hue}
                   onChange={(e) => setHue(Number(e.target.value))}
-                  className="flex-1"
+                  className="flex-1 accent-foreground"
                 />
                 <span
-                  className="h-6 w-6 rounded-full shrink-0"
-                  style={{ background: `oklch(0.55 0.12 ${hue})` }}
+                  className="h-5 w-5 rounded-full shrink-0 ring-2 ring-offset-1 ring-border transition-all duration-300"
+                  style={{ background: `oklch(0.55 0.12 ${hue})`, ringColor: `oklch(0.55 0.12 ${hue})` }}
                 />
               </div>
             </div>
           </div>
-          <div className="mb-4">
-            <label className="text-xs text-muted-foreground mb-1 block">Description</label>
+          <div className="mb-6">
+            <label className="text-xs text-muted-foreground/70 mb-1.5 block font-medium">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief course description..."
-              className="w-full bg-transparent text-sm outline-none border border-border rounded-lg px-3 py-2 focus:border-foreground/30 transition-colors min-h-[80px] resize-y"
+              className="w-full bg-surface-muted/50 text-sm outline-none border border-border rounded-xl px-3.5 py-2.5 focus:border-foreground/20 focus:bg-surface transition-all duration-300 min-h-[90px] resize-y"
             />
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="btn-ghost"
+            >
+              Cancel
+            </button>
             <button
               type="submit"
               disabled={!code.trim() || !title.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
+              className="btn-primary disabled:opacity-40"
             >
-              <Plus className="h-4 w-4" /> Add course
+              <Plus className="h-4 w-4" strokeWidth={2.5} /> Add course
             </button>
           </div>
         </form>
@@ -129,34 +136,42 @@ function CoursesPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {courses.map((c) => (
-          <div key={c.id} className="surface-card p-6 group hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 relative">
+          <div key={c.id} className="surface-card group relative overflow-hidden">
             <Link
               to="/courses/$courseId"
               params={{ courseId: c.id }}
-              className="block"
+              className="block p-6"
             >
               <div
-                className="h-24 rounded-lg mb-5 flex items-end p-4"
+                className="h-28 rounded-xl mb-5 flex items-end p-4 relative overflow-hidden transition-all duration-500"
                 style={{
-                  background: `linear-gradient(135deg, oklch(0.92 0.05 ${c.hue}), oklch(0.85 0.09 ${c.hue}))`,
+                  background: `linear-gradient(135deg, oklch(0.92 0.04 ${c.hue}), oklch(0.85 0.07 ${c.hue}))`,
                 }}
               >
+                <div
+                  className="absolute inset-0 opacity-30"
+                  style={{
+                    background: `radial-gradient(circle at 80% 20%, oklch(0.95 0.12 ${c.hue}), transparent 60%)`,
+                  }}
+                />
                 <span
-                  className="font-display text-2xl"
+                  className="font-display text-2xl relative z-10"
                   style={{ color: `oklch(0.3 0.08 ${c.hue})` }}
                 >
                   {c.code}
                 </span>
               </div>
-              <h2 className="font-display text-lg leading-tight">{c.title}</h2>
+              <h2 className="font-display text-lg leading-tight font-medium">{c.title}</h2>
               <p className="text-sm text-muted-foreground mt-1">{c.instructor}</p>
               <div className="mt-5 flex items-center justify-between text-xs text-muted-foreground">
                 <span>{c.progress}% complete</span>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity">Open →</span>
+                <span className="inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  Open <ArrowUpRight className="h-3 w-3" />
+                </span>
               </div>
-              <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
+              <div className="mt-3 h-1.5 rounded-full bg-muted overflow-hidden">
                 <div
-                  className="h-full rounded-full transition-all"
+                  className="h-full rounded-full transition-all duration-500"
                   style={{ width: `${c.progress}%`, background: `oklch(0.55 0.12 ${c.hue})` }}
                 />
               </div>
@@ -164,12 +179,12 @@ function CoursesPage() {
             <button
               onClick={() => remove(c.id)}
               className={cn(
-                "absolute top-4 right-4 h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all",
-                "opacity-0 group-hover:opacity-100"
+                "absolute top-3 right-3 h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-all duration-300",
+                "opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0",
               )}
               aria-label="Delete course"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4" strokeWidth={2} />
             </button>
           </div>
         ))}

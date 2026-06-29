@@ -23,6 +23,7 @@ function greeting() {
 
 function Dashboard() {
   const { tasks } = useTasks();
+  const { courses } = useCourses();
   const open = tasks.filter((t) => !t.done).slice(0, 5);
   const done = tasks.filter((t) => t.done).length;
 

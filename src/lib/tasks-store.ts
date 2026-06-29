@@ -8,15 +8,16 @@ export type Task = {
   done: boolean;
   createdAt: number;
   course?: string;
+  courseId?: string;
 };
 
 const KEY = "study-corner-tasks";
 
 const seed: Task[] = [
-  { id: "t1", title: "Finish problem set 3", category: "Homework", done: false, createdAt: Date.now() - 86400000, course: "CS 250" },
-  { id: "t2", title: "Read Chalmers chapter 2", category: "Homework", done: true, createdAt: Date.now() - 172800000, course: "PHIL 140" },
-  { id: "t3", title: "Linear algebra midterm review", category: "Finals", done: false, createdAt: Date.now() - 43200000, course: "MATH 220" },
-  { id: "t4", title: "Outline modernism essay", category: "Projects", done: false, createdAt: Date.now() - 200000, course: "ART 110" },
+  { id: "t1", title: "Finish problem set 3", category: "Homework", done: false, createdAt: Date.now() - 86400000, courseId: "cs250", course: "CS 250" },
+  { id: "t2", title: "Read Chalmers chapter 2", category: "Homework", done: true, createdAt: Date.now() - 172800000, courseId: "phil140", course: "PHIL 140" },
+  { id: "t3", title: "Linear algebra midterm review", category: "Finals", done: false, createdAt: Date.now() - 43200000, courseId: "math220", course: "MATH 220" },
+  { id: "t4", title: "Outline modernism essay", category: "Projects", done: false, createdAt: Date.now() - 200000, courseId: "art110", course: "ART 110" },
 ];
 
 function read(): Task[] {

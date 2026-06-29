@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Calendar } from "lucide-react";
-import { courses } from "@/lib/mock-data";
+import { useCourses } from "@/lib/courses-store";
 import { useTasks } from "@/lib/tasks-store";
 
 export const Route = createFileRoute("/")({
@@ -23,6 +23,7 @@ function greeting() {
 
 function Dashboard() {
   const { tasks } = useTasks();
+  const { courses } = useCourses();
   const open = tasks.filter((t) => !t.done).slice(0, 5);
   const done = tasks.filter((t) => t.done).length;
 

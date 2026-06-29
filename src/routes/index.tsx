@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Calendar } from "lucide-react";
-import { courses } from "@/lib/mock-data";
+import { useCourses } from "@/lib/courses-store";
 import { useTasks } from "@/lib/tasks-store";
 
 export const Route = createFileRoute("/")({
